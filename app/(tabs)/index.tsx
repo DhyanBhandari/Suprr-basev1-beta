@@ -1,635 +1,164 @@
-import React, { useState, useRef, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  TextInput,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Animated,
-  Dimensions,
-} from 'react-native';
+import { Tabs } from 'expo-router';
+import { useTheme } from '@/context/ThemeContext';
+import { Chrome as Home, User, Heart, Rss } from 'lucide-react-native';
+import { View, StyleSheet, Animated } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { Audio } from 'expo-av';
-import { Globe, Heart, User, Rss, Menu, Settings, Gift, Users, Mic, Send } from 'lucide-react-native';
-import { useTheme } from '../../context/ThemeContext';
+import { useRef, useEffect } from 'react';
 
-const { width, height } = Dimensions.get('window');
+export default function TabLayout() {
+  const { theme, currentTheme } = useTheme();
 
-export default function HomeScreen() {
-  const { theme } = useTheme();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isUserModeOpen, setIsUserModeOpen] = useState(false);
-  const [userMode, setUserMode] = useState<'Personnel' | 'Business'>('Personnel');
-  const [isRecording, setIsRecording] = useState(false);
-  const [recording, setRecording] = useState<Audio.Recording | null>(null);
-  const [transcript, setTranscript] = useState('');
-  const [chatText, setChatText] = useState('');
-  const [isChatFocused, setIsChatFocused] = useState(false);
-  const [chats, setChats] = useState<{Personnel: string[], Business: string[]}>({
-    Personnel: ['Welcome to Personnel mode!'],
-    Business: ['Welcome to Business mode!']
-  });
-
-  // Animation values
-  const waveformAnimations = useRef(Array.from({ length: 7 }, () => new Animated.Value(0.3))).current;
-  const chatInputAnimation = useRef(new Animated.Value(0)).current;
-  const menuAnimation = useRef(new Animated.Value(0)).current;
-  const chatInputHeightAnimation = useRef(new Animated.Value(44)).current;
-
-  useEffect(() => {
-    if (isRecording) {
-      startWaveformAnimation();
-    } else {
-      stopWaveformAnimation();
-    }
-  }, [isRecording]);
-
-  useEffect(() => {
-    Animated.timing(chatInputAnimation, {
-      toValue: isChatFocused ? 1 : 0,
-      duration: 300,
-      useNativeDriver: false,
-    }).start();
-    
-    Animated.timing(chatInputHeightAnimation, {
-      toValue: isChatFocused ? 60 : 44,
-      duration: 300,
-      useNativeDriver: false,
-    }).start();
-  }, [isChatFocused]);
-
-  useEffect(() => {
-    Animated.timing(menuAnimation, {
-      toValue: isMenuOpen ? 1 : 0,
-      duration: 300,
-      useNativeDriver: false,
-    }).start();
-  }, [isMenuOpen]);
-
-  const startWaveformAnimation = () => {
-    const animations = waveformAnimations.map((anim, index) =>
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(anim, {
-            toValue: Math.random() * 0.8 + 0.2,
-            duration: 200 + index * 50,
-            useNativeDriver: false,
-          }),
-          Animated.timing(anim, {
-            toValue: 0.3,
-            duration: 200 + index * 50,
-            useNativeDriver: false,
-          }),
-        ])
-      )
-    );
-    Animated.stagger(100, animations).start();
-  };
-
-  const stopWaveformAnimation = () => {
-    waveformAnimations.forEach(anim => anim.stopAnimation());
-  };
-
-  const startRecording = async () => {
-    try {
-      const permission = await Audio.requestPermissionsAsync();
-      if (permission.status !== 'granted') return;
-
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
-      });
-
-      const { recording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY
+  const TabBarBackground = () => {
+    if (theme.blur) {
+      return (
+        <BlurView
+          style={StyleSheet.absoluteFillObject}
+          intensity={theme.blurIntensity}
+          tint={currentTheme === 'dark' ? 'dark' : 'light'}
+        />
       );
-      setRecording(recording);
-      setIsRecording(true);
-      setTranscript('Listening...');
-    } catch (err) {
-      console.error('Failed to start recording', err);
     }
+    return (
+      <View 
+        style={[
+          StyleSheet.absoluteFillObject,
+          { backgroundColor: theme.colors.surface }
+        ]} 
+      />
+    );
   };
 
-  const stopRecording = async () => {
-    if (!recording) return;
+  const AnimatedTabIcon = ({ icon: Icon, size, color, focused }: any) => {
+    const scaleAnim = useRef(new Animated.Value(focused ? 1.1 : 1)).current;
+    const glowAnim = useRef(new Animated.Value(focused ? 1 : 0)).current;
 
-    setIsRecording(false);
-    await recording.stopAndUnloadAsync();
-    const uri = recording.getURI();
-    setRecording(null);
-    
-    // Simulate speech-to-text
-    const simulatedTranscript = 'Hello, this is a voice message!';
-    setTranscript(simulatedTranscript);
-    
-    // Add to chat
-    const newChats = { ...chats };
-    newChats[userMode] = [...newChats[userMode], `🎤 ${simulatedTranscript}`];
-    setChats(newChats);
-    
-    setTimeout(() => setTranscript(''), 3000);
-  };
+    useEffect(() => {
+      Animated.parallel([
+        Animated.spring(scaleAnim, {
+          toValue: focused ? 1.1 : 1,
+          useNativeDriver: true,
+          tension: 300,
+          friction: 10,
+        }),
+        Animated.timing(glowAnim, {
+          toValue: focused ? 1 : 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }, [focused]);
 
-  const handleVoiceRecording = () => {
-    if (isRecording) {
-      stopRecording();
-    } else {
-      startRecording();
-    }
-  };
-
-  const handleChatSubmit = () => {
-    if (chatText.trim()) {
-      const newChats = { ...chats };
-      newChats[userMode] = [...newChats[userMode], chatText.trim()];
-      setChats(newChats);
-      setChatText('');
-      setIsChatFocused(false);
-    }
-  };
-
-  const toggleUserMode = (mode: 'Personnel' | 'Business') => {
-    setUserMode(mode);
-    setIsUserModeOpen(false);
-  };
-
-  const menuBackdropStyle = {
-    opacity: menuAnimation.interpolate({
-      inputRange: [0, 1],
-      outputRange: [0, 1],
-    }),
-  };
-
-  const menuSlideStyle = {
-    transform: [{
-      translateX: menuAnimation.interpolate({
-        inputRange: [0, 1],
-        outputRange: [300, 0],
-      }),
-    }],
-  };
-
-  const chatInputSlideStyle = {
-    transform: [{
-      translateY: chatInputAnimation.interpolate({
-        inputRange: [0, 1],
-        outputRange: [20, 0],
-      }),
-    }],
-    opacity: chatInputAnimation.interpolate({
-      inputRange: [0, 1],
-      outputRange: [0.8, 1],
-    }),
+    return (
+      <View style={styles.iconContainer}>
+        <Animated.View 
+          style={[
+            styles.iconGlow,
+            {
+              backgroundColor: theme.colors.primary + '20',
+              opacity: glowAnim,
+              transform: [{ scale: scaleAnim }],
+            }
+          ]}
+        />
+        <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+          <Icon size={focused ? size + 2 : size} color={color} />
+        </Animated.View>
+      </View>
+    );
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      {/* Header */}
-      <View style={[
-        styles.header,
-        { 
-          backgroundColor: theme.name === 'liquidGlass' ? 'rgba(255, 255, 255, 0.08)' : theme.colors.surface,
-          borderBottomColor: theme.name === 'liquidGlass' ? 'rgba(255, 255, 255, 0.2)' : theme.colors.border,
-        }
-      ]}>
-        {theme.name === 'liquidGlass' && (
-          <BlurView intensity={80} style={StyleSheet.absoluteFill} />
-        )}
-        <Text style={[
-          styles.logo,
-          { 
-            color: theme.colors.text,
-            textShadowColor: theme.name === 'liquidGlass' ? 'rgba(0,0,0,0.3)' : 'transparent',
-            textShadowOffset: { width: 0, height: 1 },
-            textShadowRadius: 2,
-          }
-        ]}>
-          PLINK
-        </Text>
-        <TouchableOpacity
-          style={styles.menuButton}
-          onPress={() => setIsMenuOpen(!isMenuOpen)}
-        >
-          <Menu size={24} color={theme.colors.text} />
-        </TouchableOpacity>
-      </View>
-
-      {/* Menu Backdrop */}
-      {isMenuOpen && (
-        <Animated.View style={[styles.menuBackdrop, menuBackdropStyle]}>
-          <BlurView intensity={8} style={StyleSheet.absoluteFill} />
-          <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.2)' }]} />
-          <TouchableOpacity
-            style={StyleSheet.absoluteFill}
-            onPress={() => setIsMenuOpen(false)}
-          />
-        </Animated.View>
-      )}
-
-      {/* Hamburger Menu */}
-      {isMenuOpen && (
-        <Animated.View style={[styles.menu, menuSlideStyle]}>
-          {theme.name === 'liquidGlass' && (
-            <BlurView intensity={80} style={StyleSheet.absoluteFill} />
-          )}
-          <View style={[
-            styles.menuContent,
-            { backgroundColor: theme.name === 'liquidGlass' ? 'rgba(255, 255, 255, 0.08)' : theme.colors.surface }
-          ]}>
-            <TouchableOpacity
-              style={styles.menuItem}
-              onPress={() => setIsUserModeOpen(!isUserModeOpen)}
-            >
-              <Users size={20} color="#8b5cf6" />
-              <Text style={[styles.menuText, { color: theme.colors.text }]}>
-                User Mode: {userMode}
-              </Text>
-            </TouchableOpacity>
-
-            {isUserModeOpen && (
-              <View style={styles.userModeDropdown}>
-                <TouchableOpacity
-                  style={[styles.userModeOption, userMode === 'Personnel' && styles.activeUserMode]}
-                  onPress={() => toggleUserMode('Personnel')}
-                >
-                  <Text style={[styles.userModeText, { color: theme.colors.text }]}>Personnel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.userModeOption, userMode === 'Business' && styles.activeUserMode]}
-                  onPress={() => toggleUserMode('Business')}
-                >
-                  <Text style={[styles.userModeText, { color: theme.colors.text }]}>Business</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-
-            <TouchableOpacity style={styles.menuItem}>
-              <Gift size={20} color="#10b981" />
-              <Text style={[styles.menuText, { color: theme.colors.text }]}>Invite Friends</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.menuItem}>
-              <Settings size={20} color="#6b7280" />
-              <Text style={[styles.menuText, { color: theme.colors.text }]}>Settings</Text>
-            </TouchableOpacity>
-          </View>
-        </Animated.View>
-      )}
-
-      <KeyboardAvoidingView 
-        style={styles.container}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
-        {/* Main Content */}
-        <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
-          {/* Business Mode Indicator */}
-          {userMode === 'Business' && (
-            <View style={styles.businessModeIndicator}>
-              <Text style={[styles.businessModeText, { color: theme.colors.textSecondary }]}>
-                Business Mode
-              </Text>
-            </View>
-          )}
-
-          {/* Voice Recording Section */}
-          <View style={[
-            styles.voiceSection,
-            { 
-              backgroundColor: theme.name === 'liquidGlass' ? 'rgba(255, 255, 255, 0.06)' : theme.colors.card,
-              borderColor: theme.name === 'liquidGlass' ? 'rgba(255, 255, 255, 0.2)' : theme.colors.border,
-            }
-          ]}>
-            {theme.name === 'liquidGlass' && (
-              <BlurView intensity={50} style={StyleSheet.absoluteFill} />
-            )}
-            
-            <TouchableOpacity
-              style={[
-                styles.micButton,
-                { 
-                  backgroundColor: isRecording ? '#ef4444' : '#3b82f6',
-                  shadowColor: isRecording ? '#ef4444' : '#3b82f6',
-                }
-              ]}
-              onPress={handleVoiceRecording}
-            >
-              <Mic size={32} color="white" />
-            </TouchableOpacity>
-
-            {isRecording && (
-              <View style={styles.waveform}>
-                {waveformAnimations.map((anim, index) => (
-                  <Animated.View
-                    key={index}
-                    style={[
-                      styles.waveBar,
-                      {
-                        height: anim.interpolate({
-                          inputRange: [0, 1],
-                          outputRange: [10, 40],
-                        }),
-                      },
-                    ]}
-                  />
-                ))}
-              </View>
-            )}
-
-            {transcript && (
-              <Text style={[
-                styles.transcript,
-                { 
-                  color: theme.colors.text,
-                  textShadowColor: theme.name === 'liquidGlass' ? 'rgba(0,0,0,0.3)' : 'transparent',
-                  textShadowOffset: { width: 0, height: 1 },
-                  textShadowRadius: 2,
-                }
-              ]}>
-                {transcript}
-              </Text>
-            )}
-          </View>
-
-          {/* Chat Messages */}
-          <View style={[
-            styles.chatContainer,
-            { 
-              backgroundColor: theme.name === 'liquidGlass' ? 'rgba(255, 255, 255, 0.06)' : theme.colors.card,
-              borderColor: theme.name === 'liquidGlass' ? 'rgba(255, 255, 255, 0.2)' : theme.colors.border,
-            }
-          ]}>
-            {theme.name === 'liquidGlass' && (
-              <BlurView intensity={50} style={StyleSheet.absoluteFill} />
-            )}
-            
-            <Text style={[
-              styles.chatTitle,
-              { 
-                color: theme.colors.text,
-                textShadowColor: theme.name === 'liquidGlass' ? 'rgba(0,0,0,0.3)' : 'transparent',
-                textShadowOffset: { width: 0, height: 1 },
-                textShadowRadius: 2,
-              }
-            ]}>
-              {userMode} Chat
-            </Text>
-            
-            {chats[userMode].map((message, index) => (
-              <View key={index} style={[
-                styles.chatMessage,
-                { 
-                  backgroundColor: theme.name === 'liquidGlass' ? 'rgba(255, 255, 255, 0.08)' : theme.colors.surface,
-                  borderColor: theme.name === 'liquidGlass' ? 'rgba(255, 255, 255, 0.2)' : theme.colors.border,
-                }
-              ]}>
-                <Text style={[
-                  styles.chatMessageText,
-                  { 
-                    color: theme.colors.text,
-                    textShadowColor: theme.name === 'liquidGlass' ? 'rgba(0,0,0,0.3)' : 'transparent',
-                    textShadowOffset: { width: 0, height: 1 },
-                    textShadowRadius: 1,
-                  }
-                ]}>
-                  {message}
-                </Text>
-              </View>
-            ))}
-          </View>
-        </ScrollView>
-
-        {/* Chat Input */}
-        <Animated.View style={[
-          styles.chatInputContainer,
-          chatInputSlideStyle,
-          { 
-            backgroundColor: theme.name === 'liquidGlass' ? 'rgba(255, 255, 255, 0.08)' : theme.colors.surface,
-            borderTopColor: theme.name === 'liquidGlass' ? 'rgba(255, 255, 255, 0.2)' : theme.colors.border,
-          }
-        ]}>
-          {theme.name === 'liquidGlass' && (
-            <BlurView intensity={80} style={StyleSheet.absoluteFill} />
-          )}
-          
-          <View style={styles.chatInputWrapper}>
-            <Animated.View style={[
-              styles.chatInputAnimatedContainer,
-              {
-                height: chatInputHeightAnimation,
-                backgroundColor: isChatFocused 
-                  ? (theme.blur ? 'rgba(255, 255, 255, 0.12)' : theme.colors.card)
-                  : (theme.blur ? 'rgba(255, 255, 255, 0.08)' : theme.colors.surface),
-                borderColor: 'transparent',
-                shadowColor: isChatFocused ? theme.colors.primary : 'transparent',
-                shadowOffset: { width: 0, height: 0 },
-                shadowOpacity: 0.3,
-                shadowRadius: 8,
-                paddingVertical: isChatFocused ? 12 : 8,
-              }
-            ]}>
-              <TextInput
-                style={[
-                  styles.chatInput,
-                  { color: theme.colors.text }
-                ]}
-                placeholder="Type your message..."
-                placeholderTextColor={theme.colors.textSecondary}
-                value={chatText}
-                onChangeText={setChatText}
-                onFocus={() => setIsChatFocused(true)}
-                onBlur={() => setIsChatFocused(false)}
-                multiline
-                returnKeyType="send"
-                onSubmitEditing={handleChatSubmit}
-              />
-            </Animated.View>
-            {chatText.trim() && (
-              <TouchableOpacity
-                onPress={handleChatSubmit}
-                style={[
-                  styles.sendButton,
-                  { backgroundColor: theme.colors.primary }
-                ]}
-              >
-                <Send size={20} color="white" />
-              </TouchableOpacity>
-            )}
-          </View>
-        </Animated.View>
-      </KeyboardAvoidingView>
-    </View>
+    <Tabs
+      screenOptions={{
+        headerShown: false,
+        tabBarStyle: {
+          position: 'absolute',
+          bottom: 35,
+          left: 20,
+          right: 20,
+          height: 70,
+          borderRadius: 25,
+          borderTopWidth: 0,
+          elevation: 8,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.15,
+          shadowRadius: 12,
+          paddingBottom: 10,
+          paddingTop: 10,
+          backgroundColor: 'transparent',
+        },
+        tabBarBackground: () => <TabBarBackground />,
+        tabBarActiveTintColor: '#3b82f6',
+        tabBarInactiveTintColor: theme.colors.textSecondary,
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '600',
+          marginTop: 4,
+        },
+        tabBarIconStyle: {
+          marginTop: 4,
+        },
+      }}
+    >
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: 'Home',
+          tabBarIcon: ({ size, color, focused }) => (
+            <AnimatedTabIcon icon={Home} size={size} color={focused ? '#14b8a6' : color} focused={focused} />
+          ),
+          tabBarActiveTintColor: '#14b8a6',
+        }}
+      />
+      <Tabs.Screen
+        name="favorites"
+        options={{
+          title: 'Favorites',
+          tabBarIcon: ({ size, color, focused }) => (
+            <AnimatedTabIcon icon={Heart} size={size} color={focused ? '#ef4444' : color} focused={focused} />
+          ),
+          tabBarActiveTintColor: '#ef4444',
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Profile',
+          tabBarIcon: ({ size, color, focused }) => (
+            <AnimatedTabIcon icon={User} size={size} color={focused ? '#8b5cf6' : color} focused={focused} />
+          ),
+          tabBarActiveTintColor: '#8b5cf6',
+        }}
+      />
+      <Tabs.Screen
+        name="feed"
+        options={{
+          title: 'Feed',
+          tabBarIcon: ({ size, color, focused }) => (
+            <AnimatedTabIcon icon={Rss} size={size} color={focused ? '#60a5fa' : color} focused={focused} />
+          ),
+          tabBarActiveTintColor: '#60a5fa',
+        }}
+      />
+      <Tabs.Screen name="settings" options={{ href: null }} />
+      <Tabs.Screen name="invite" options={{ href: null }} />
+    </Tabs>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  iconContainer: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 50,
-    paddingBottom: 15,
-    borderBottomWidth: 1,
-    zIndex: 10,
+    position: 'relative',
   },
-  logo: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  menuButton: {
-    padding: 8,
-  },
-  menuBackdrop: {
+  iconGlow: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 15,
-  },
-  menu: {
-    position: 'absolute',
-    top: 90,
-    right: 20,
-    width: 250,
-    zIndex: 20,
-    borderRadius: 12,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  menuContent: {
-    padding: 20,
-  },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  menuText: {
-    marginLeft: 12,
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  userModeDropdown: {
-    marginLeft: 32,
-    marginBottom: 8,
-  },
-  userModeOption: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 6,
-    marginBottom: 4,
-  },
-  activeUserMode: {
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-  },
-  userModeText: {
-    fontSize: 14,
-  },
-  content: {
-    flex: 1,
-  },
-  contentContainer: {
-    padding: 20,
-    paddingBottom: 120,
-  },
-  voiceSection: {
-    alignItems: 'center',
-    padding: 30,
+    width: 40,
+    height: 40,
     borderRadius: 20,
-    marginBottom: 20,
-    borderWidth: 1,
-  },
-  micButton: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  waveform: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 20,
-    height: 50,
-  },
-  waveBar: {
-    width: 4,
-    backgroundColor: '#3b82f6',
-    marginHorizontal: 2,
-    borderRadius: 2,
-  },
-  transcript: {
-    marginTop: 15,
-    fontSize: 16,
-    textAlign: 'center',
-    fontStyle: 'italic',
-  },
-  chatContainer: {
-    padding: 20,
-    borderRadius: 20,
-    borderWidth: 1,
-  },
-  chatTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 15,
-  },
-  chatMessage: {
-    padding: 12,
-    borderRadius: 12,
-    marginBottom: 8,
-    borderWidth: 1,
-  },
-  chatMessageText: {
-    fontSize: 14,
-  },
-  chatInputContainer: {
-    position: 'absolute',
-    bottom: 100,
-    left: 0,
-    right: 0,
-    borderTopWidth: 1,
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-  },
-  chatInputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-  },
-  chatInput: {
-    flex: 1,
-    borderRadius: 25,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    fontSize: 16,
-    maxHeight: 100,
-    marginRight: 10,
-  },
-  sendButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 });

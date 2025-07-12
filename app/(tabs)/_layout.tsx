@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import { useTheme } from '@/context/ThemeContext';
-import { Chrome as Home, User, Heart, Rss } from 'lucide-react-native';
+import { Globe, User, Heart, Rss } from 'lucide-react-native';
 import { View, StyleSheet, Animated } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { useRef, useEffect } from 'react';
@@ -31,6 +31,9 @@ export default function TabLayout() {
   const AnimatedTabIcon = ({ icon: Icon, size, color, focused }: any) => {
     const scaleAnim = useRef(new Animated.Value(focused ? 1.1 : 1)).current;
     const glowAnim = useRef(new Animated.Value(focused ? 1 : 0)).current;
+    const rotationAnim = useRef(new Animated.Value(0)).current;
+    const heartbeatAnim = useRef(new Animated.Value(1)).current;
+    const flickerAnim = useRef(new Animated.Value(1)).current;
 
     useEffect(() => {
       Animated.parallel([
@@ -46,8 +49,122 @@ export default function TabLayout() {
           useNativeDriver: true,
         }),
       ]).start();
+      
+      // Globe rotation animation for Home
+      if (Icon === Globe) {
+        Animated.loop(
+          Animated.timing(rotationAnim, {
+            toValue: 1,
+            duration: 8000,
+            useNativeDriver: true,
+          })
+        ).start();
+      }
+      
+      // Heartbeat animation for Heart
+      if (Icon === Heart) {
+        Animated.loop(
+          Animated.sequence([
+            Animated.timing(heartbeatAnim, {
+              toValue: 1.1,
+              duration: 750,
+              useNativeDriver: true,
+            }),
+              useNativeDriver: true,
+            }),
+            Animated.timing(heartbeatAnim, {
+              toValue: 1,
+              duration: 750,
+              useNativeDriver: true,
+            }),
+          ])
+        ).start();
+      }
+      
+      // Profile glow animation
+      if (Icon === User) {
+        Animated.loop(
+          Animated.sequence([
+            Animated.timing(profileGlowAnim, {
+              toValue: 1,
+              duration: 2000,
+              useNativeDriver: true,
+            }),
+            Animated.timing(profileGlowAnim, {
+              toValue: 0.5,
+              duration: 2000,
+              useNativeDriver: true,
+            }),
+          ])
+        ).start();
+      }
+      
+      // Feed flicker animation
+      if (Icon === Rss) {
+        Animated.loop(
+          Animated.sequence([
+            Animated.timing(flickerAnim, {
+              toValue: 0.6,
+              duration: 1000,
+              useNativeDriver: true,
+            }),
+            Animated.timing(flickerAnim, {
+              toValue: 1,
+              duration: 1000,
+              useNativeDriver: true,
+            }),
+          ])
+        ).start();
+      }
     }, [focused]);
 
+    const getAnimatedStyle = () => {
+      const baseStyle = { transform: [{ scale: scaleAnim }] };
+      
+      if (Icon === Globe) {
+        return {
+          ...baseStyle,
+          transform: [
+            { scale: scaleAnim },
+            {
+              rotate: rotationAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: ['0deg', '360deg'],
+              }),
+            },
+          ],
+        };
+      }
+      
+      if (Icon === Heart) {
+        return {
+          ...baseStyle,
+          transform: [
+            { scale: Animated.multiply(scaleAnim, heartbeatAnim) },
+          ],
+        };
+      }
+      
+      if (Icon === User) {
+        return {
+          ...baseStyle,
+          shadowColor: '#ffffff',
+          shadowOffset: { width: 0, height: 0 },
+          shadowOpacity: profileGlowAnim,
+          shadowRadius: 8,
+          elevation: 8,
+        };
+      }
+      
+      if (Icon === Rss) {
+        return {
+          ...baseStyle,
+          opacity: flickerAnim,
+        };
+      }
+      
+      return baseStyle;
+    };
     return (
       <View style={styles.iconContainer}>
         <Animated.View 
@@ -60,7 +177,7 @@ export default function TabLayout() {
             }
           ]}
         />
-        <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+        <Animated.View style={getAnimatedStyle()}>
           <Icon size={focused ? size + 2 : size} color={color} />
         </Animated.View>
       </View>
@@ -106,7 +223,7 @@ export default function TabLayout() {
         options={{
           title: 'Home',
           tabBarIcon: ({ size, color, focused }) => (
-            <AnimatedTabIcon icon={Home} size={size} color={focused ? '#14b8a6' : color} focused={focused} />
+            <AnimatedTabIcon icon={Globe} size={size} color={focused ? '#14b8a6' : color} focused={focused} />
           ),
           tabBarActiveTintColor: '#14b8a6',
         }}
