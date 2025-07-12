@@ -1,7 +1,7 @@
 /**
  * @file Header.tsx
- * @description Reusable header component with navigation and blur effects
- * @features - Back button, menu button, blur background, theme integration
+ * @description Reusable header component for navigation with back button and menu options
+ * @features - Back navigation, menu toggle, blur effects, theme support
  * @developer Dhyan Bhandari
  */
 
