@@ -14,7 +14,7 @@ import {
   Alert,
 } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { Headphones, Mic, Send, Menu, X, Gift } from 'lucide-react-native';
+import { Home, Mic, Send, Menu, X, Gift, User } from 'lucide-react-native';
 import { useTheme } from '@/context/ThemeContext';
 import { router } from 'expo-router';
 import { Audio } from 'expo-av';
@@ -38,10 +38,20 @@ export default function HomeScreen() {
   const [transcript, setTranscript] = useState('');
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [showMenu, setShowMenu] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [chatInputFocused, setChatInputFocused] = useState(false);
+  const [userMode, setUserMode] = useState<'personnel' | 'business'>('personnel');
+  const [personnelMessages, setPersonnelMessages] = useState<Message[]>([]);
+  const [businessMessages, setBusinessMessages] = useState<Message[]>([]);
 
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const transcriptAnim = useRef(new Animated.Value(0)).current;
   const waveAnims = useRef([...Array(7)].map(() => new Animated.Value(0.3))).current;
+  const chatInputAnim = useRef(new Animated.Value(0)).current;
+
+  // Get messages based on current user mode
+  const currentMessages = userMode === 'personnel' ? personnelMessages : businessMessages;
+  const setCurrentMessages = userMode === 'personnel' ? setPersonnelMessages : setBusinessMessages;
 
   const startWaveAnimation = useCallback(() => {
     const animations = waveAnims.map((anim, index) => 
@@ -166,6 +176,7 @@ export default function HomeScreen() {
           sender: 'user',
         };
         setMessages(prev => [...prev, newMessage]);
+        setCurrentMessages(prev => [...prev, newMessage]);
         
         setTimeout(() => {
           const aiResponse: Message = {
@@ -174,6 +185,7 @@ export default function HomeScreen() {
             sender: 'ai',
           };
           setMessages(prev => [...prev, aiResponse]);
+          setCurrentMessages(prev => [...prev, aiResponse]);
         }, 1000);
         
         setTranscript('');
@@ -201,6 +213,7 @@ export default function HomeScreen() {
         sender: 'user',
       };
       setMessages(prev => [...prev, newMessage]);
+      setCurrentMessages(prev => [...prev, newMessage]);
       setChatText('');
       
       setTimeout(() => {
@@ -210,9 +223,37 @@ export default function HomeScreen() {
           sender: 'ai',
         };
         setMessages(prev => [...prev, aiResponse]);
+        setCurrentMessages(prev => [...prev, aiResponse]);
       }, 1000);
     }
   }, [chatText]);
+
+  const handleChatInputFocus = () => {
+    setChatInputFocused(true);
+    Animated.timing(chatInputAnim, {
+      toValue: 1,
+      duration: 300,
+      easing: Easing.ease,
+      useNativeDriver: false,
+    }).start();
+  };
+
+  const handleChatInputBlur = () => {
+    setChatInputFocused(false);
+    Animated.timing(chatInputAnim, {
+      toValue: 0,
+      duration: 300,
+      easing: Easing.ease,
+      useNativeDriver: false,
+    }).start();
+  };
+
+  const switchUserMode = (mode: 'personnel' | 'business') => {
+    setUserMode(mode);
+    setMessages(mode === 'personnel' ? personnelMessages : businessMessages);
+    setShowUserMenu(false);
+    setShowMenu(false);
+  };
 
   const renderMessage = ({ item }: { item: Message }) => (
     <View style={[
@@ -249,10 +290,10 @@ export default function HomeScreen() {
   );
 
   const MainContent = () => {
-    if (messages.length > 0) {
+    if (currentMessages.length > 0) {
       return (
         <FlatList
-          data={messages}
+          data={currentMessages}
           renderItem={renderMessage}
           keyExtractor={item => item.id.toString()}
           style={styles.messagesList}
@@ -347,9 +388,9 @@ export default function HomeScreen() {
       <View style={styles.defaultContainer}>
         <TouchableOpacity 
           onPress={handlePersonClick}
-          style={[styles.mainButton, { backgroundColor: theme.colors.primary }]}
+          style={[styles.mainButton, { backgroundColor: '#14b8a6' }]}
         >
-          <Headphones size={48} color="#ffffff" />
+          <Home size={48} color="#ffffff" />
         </TouchableOpacity>
         <Text style={[
           styles.mainTitle, 
@@ -386,58 +427,15 @@ export default function HomeScreen() {
           <TouchableOpacity onPress={() => router.push('/(tabs)')}>
             <Text style={[
               styles.logo, 
-              { 
-                color: theme.colors.text,
-                textShadowColor: theme.blur ? 'rgba(0, 0, 0, 0.3)' : 'transparent',
-                textShadowOffset: { width: 0, height: 1 },
-                textShadowRadius: theme.blur ? 2 : 0,
-              }
+              { color: theme.colors.text }
             ]}>
               PLINK
             </Text>
           </TouchableOpacity>
           
-          <View style={[styles.modeToggle, { backgroundColor: theme.colors.card }]}>
-            {theme.blur && (
-              <BlurView
-                style={StyleSheet.absoluteFillObject}
-                intensity={theme.blurIntensity / 2}
-                tint={currentTheme === 'dark' ? 'dark' : 'light'}
-              />
-            )}
-            <TouchableOpacity
-              onPress={() => setIsUserMode(true)}
-              style={[
-                styles.modeButton,
-                isUserMode && { backgroundColor: theme.colors.primary }
-              ]}
-            >
-              <Text style={[
-                styles.modeButtonText,
-                { color: isUserMode ? '#ffffff' : theme.colors.textSecondary }
-              ]}>
-                Personal
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => setIsUserMode(false)}
-              style={[
-                styles.modeButton,
-                !isUserMode && { backgroundColor: theme.colors.primary }
-              ]}
-            >
-              <Text style={[
-                styles.modeButtonText,
-                { color: !isUserMode ? '#ffffff' : theme.colors.textSecondary }
-              ]}>
-                Business
-              </Text>
-            </TouchableOpacity>
-          </View>
-          
           <TouchableOpacity 
             onPress={() => setShowMenu(true)}
-            style={[styles.settingsButton, { backgroundColor: theme.colors.button }]}
+            style={[styles.settingsButton, { backgroundColor: '#6b7280' }]}
           >
             {theme.blur && (
               <BlurView
@@ -446,7 +444,7 @@ export default function HomeScreen() {
                 tint={currentTheme === 'dark' ? 'dark' : 'light'}
               />
             )}
-            <Menu size={24} color={theme.colors.buttonText} />
+            <Menu size={24} color="#ffffff" />
           </TouchableOpacity>
         </View>
 
@@ -463,19 +461,414 @@ export default function HomeScreen() {
             />
           )}
           <View style={styles.inputRow}>
-            <TextInput
-              value={chatText}
-              onChangeText={setChatText}
-              placeholder="Type your message..."
-              placeholderTextColor={theme.colors.textSecondary}
-              style={[
-                styles.chatInput,
-                { 
-                  backgroundColor: theme.colors.input,
+            <Animated.View style={[
+              styles.chatInputWrapper,
+              {
+                transform: [{
+                  translateY: chatInputAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [10, 0],
+                  }),
+                }],
+                opacity: chatInputAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0.8, 1],
+                }),
+              }
+            ]}>
+              <TextInput
+                value={chatText}
+                onChangeText={setChatText}
+                onFocus={handleChatInputFocus}
+                onBlur={handleChatInputBlur}
+                placeholder="Type your message..."
+                placeholderTextColor={theme.colors.textSecondary}
+                style={[styles.chatInput, { 
+                  backgroundColor: chatInputFocused ? theme.colors.input : 'rgba(255,255,255,0.1)',
                   color: theme.colors.text,
-                  borderColor: theme.colors.border 
-                }
-              ]}
+                  borderWidth: 0,
+                  shadowColor: chatInputFocused ? '#3b82f6' : 'transparent',
+                  shadowOffset: { width: 0, height: 0 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 8,
+                  elevation: chatInputFocused ? 4 : 0,
+                }]}
+                multiline
+                returnKeyType="send"
+                onSubmitEditing={handleChatSubmit}
+              />
+            </Animated.View>
+            {chatText.trim() && (
+              <TouchableOpacity 
+                onPress={handleChatSubmit}
+                style={[styles.sendButton, { backgroundColor: '#60a5fa' }]}
+              >
+                <Send size={20} color="#ffffff" />
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+
+        {showMenu && (
+          <View style={styles.menuOverlay}>
+            <BlurView
+              style={styles.menuBackdrop}
+              intensity={80}
+              tint="dark"
+            />
+            <View style={[styles.overlayDark]} />
+            <View style={[styles.menuContainer, { backgroundColor: theme.colors.card }]}>
+              {theme.blur && (
+                <BlurView
+                  style={StyleSheet.absoluteFillObject}
+                  intensity={theme.blurIntensity}
+                  tint={currentTheme === 'dark' ? 'dark' : 'light'}
+                />
+              )}
+              <View style={styles.menuHeader}>
+                <Text style={[styles.menuTitle, { color: theme.colors.text }]}>
+                  Menu
+                </Text>
+                <TouchableOpacity 
+                  onPress={() => setShowMenu(false)}
+                  style={[styles.closeButton, { backgroundColor: theme.colors.button }]}
+                >
+                  <X size={20} color={theme.colors.buttonText} />
+                </TouchableOpacity>
+              </View>
+              
+              <View style={styles.menuItems}>
+                <TouchableOpacity 
+                  style={styles.menuItem}
+                  onPress={() => setShowUserMenu(!showUserMenu)}
+                >
+                  <User size={20} color="#8b5cf6" />
+                  <Text style={[styles.menuItemText, { color: theme.colors.text }]}>
+                    User Mode
+                  </Text>
+                  <Text style={[styles.currentMode, { color: theme.colors.textSecondary }]}>
+                    {userMode === 'personnel' ? 'Personnel' : 'Business'}
+                  </Text>
+                </TouchableOpacity>
+                
+                {showUserMenu && (
+                  <Animated.View style={styles.userModeDropdown}>
+                    <TouchableOpacity 
+                      style={[styles.userModeOption, userMode === 'personnel' && styles.activeUserMode]}
+                      onPress={() => switchUserMode('personnel')}
+                    >
+                      <Text style={[styles.userModeText, { color: theme.colors.text }]}>
+                        Personnel
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                      style={[styles.userModeOption, userMode === 'business' && styles.activeUserMode]}
+                      onPress={() => switchUserMode('business')}
+                    >
+                      <Text style={[styles.userModeText, { color: theme.colors.text }]}>
+                        Business
+                      </Text>
+                    </TouchableOpacity>
+                  </Animated.View>
+                )}
+                
+                <TouchableOpacity 
+                  style={styles.menuItem}
+                  onPress={() => {
+                    setShowMenu(false);
+                    router.push('/invite');
+                  }}
+                >
+                  <Gift size={20} color="#10b981" />
+                  <Text style={[styles.menuItemText, { color: theme.colors.text }]}>
+                    Invite Friends
+                  </Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  style={styles.menuItem}
+                  onPress={() => {
+                    setShowMenu(false);
+                    router.push('/(tabs)/settings');
+                  }}
+                >
+                  <Menu size={20} color="#6b7280" />
+                  <Text style={[styles.menuItemText, { color: theme.colors.text }]}>
+                    Settings
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        )}
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  headerBlur: {
+    backgroundColor: 'transparent',
+  },
+  logo: {
+    fontSize: 22,
+    fontWeight: 'bold',
+  },
+  settingsButton: {
+    padding: 8,
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  mainContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingBottom: 120,
+  },
+  defaultContainer: {
+    alignItems: 'center',
+  },
+  mainButton: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  mainTitle: {
+    fontSize: 28,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  listeningContainer: {
+    alignItems: 'center',
+  },
+  waveContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+    gap: 4,
+    height: 40,
+  },
+  waveBars: {
+    width: 4,
+    height: 30,
+    borderRadius: 2,
+  },
+  micButton: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  micButtonInner: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  listeningText: {
+    fontSize: 18,
+    fontWeight: '500',
+    marginBottom: 16,
+  },
+  transcriptContainer: {
+    padding: 16,
+    borderRadius: 12,
+    maxWidth: '90%',
+    marginTop: 16,
+    minHeight: 50,
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  transcriptText: {
+    fontSize: 16,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  messagesList: {
+    flex: 1,
+    width: '100%',
+  },
+  messagesContainer: {
+    paddingVertical: 20,
+    paddingBottom: 120,
+  },
+  messageContainer: {
+    marginVertical: 4,
+    paddingHorizontal: 20,
+  },
+  userMessage: {
+    alignItems: 'flex-end',
+  },
+  aiMessage: {
+    alignItems: 'flex-start',
+  },
+  messageBlur: {
+    padding: 12,
+    borderRadius: 18,
+    maxWidth: '80%',
+    overflow: 'hidden',
+  },
+  userMessageBlur: {
+    backgroundColor: 'rgba(59, 130, 246, 0.3)',
+  },
+  aiMessageBlur: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  messageBubble: {
+    padding: 12,
+    borderRadius: 18,
+    maxWidth: '80%',
+  },
+  messageText: {
+    fontSize: 16,
+    lineHeight: 22,
+  },
+  chatInputContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.1)',
+    paddingBottom: 120,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+  },
+  chatInputWrapper: {
+    flex: 1,
+    marginRight: 12,
+  },
+  chatInput: {
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 16,
+    maxHeight: 100,
+  },
+  sendButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  menuOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1000,
+  },
+  menuBackdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  overlayDark: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+  },
+  menuContainer: {
+    position: 'absolute',
+    top: 80,
+    right: 20,
+    width: 220,
+    borderRadius: 12,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  menuHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  menuTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  closeButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  menuItems: {
+    padding: 8,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 8,
+  },
+  menuItemText: {
+    fontSize: 14,
+    marginLeft: 12,
+    fontWeight: '500',
+    flex: 1,
+  },
+  currentMode: {
+    fontSize: 12,
+    fontStyle: 'italic',
+  },
+  userModeDropdown: {
+    marginLeft: 32,
+    marginBottom: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  userModeOption: {
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  activeUserMode: {
+    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+  },
+  userModeText: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+});
               multiline
               returnKeyType="send"
               onSubmitEditing={handleChatSubmit}

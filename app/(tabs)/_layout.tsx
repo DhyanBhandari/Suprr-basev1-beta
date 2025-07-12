@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import { useTheme } from '@/context/ThemeContext';
-import { Menu, User, Heart, Rss } from 'lucide-react-native';
+import { Home, User, Heart, Rss } from 'lucide-react-native';
 import { View, StyleSheet, Animated } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { useRef, useEffect } from 'react';
@@ -89,7 +89,7 @@ export default function TabLayout() {
           backgroundColor: 'transparent',
         },
         tabBarBackground: () => <TabBarBackground />,
-        tabBarActiveTintColor: theme.colors.primary,
+        tabBarActiveTintColor: '#3b82f6',
         tabBarInactiveTintColor: theme.colors.textSecondary,
         tabBarLabelStyle: {
           fontSize: 12,
@@ -106,8 +106,9 @@ export default function TabLayout() {
         options={{
           title: 'Home',
           tabBarIcon: ({ size, color, focused }) => (
-            <AnimatedTabIcon icon={Menu} size={size} color={color} focused={focused} />
+            <AnimatedTabIcon icon={Home} size={size} color={focused ? '#14b8a6' : color} focused={focused} />
           ),
+          tabBarActiveTintColor: '#14b8a6',
         }}
       />
       <Tabs.Screen
@@ -115,8 +116,9 @@ export default function TabLayout() {
         options={{
           title: 'Favorites',
           tabBarIcon: ({ size, color, focused }) => (
-            <AnimatedTabIcon icon={Heart} size={size} color={color} focused={focused} />
+            <AnimatedTabIcon icon={Heart} size={size} color={focused ? '#ef4444' : color} focused={focused} />
           ),
+          tabBarActiveTintColor: '#ef4444',
         }}
       />
       <Tabs.Screen
@@ -124,8 +126,9 @@ export default function TabLayout() {
         options={{
           title: 'Profile',
           tabBarIcon: ({ size, color, focused }) => (
-            <AnimatedTabIcon icon={User} size={size} color={color} focused={focused} />
+            <AnimatedTabIcon icon={User} size={size} color={focused ? '#8b5cf6' : color} focused={focused} />
           ),
+          tabBarActiveTintColor: '#8b5cf6',
         }}
       />
       <Tabs.Screen
@@ -133,8 +136,9 @@ export default function TabLayout() {
         options={{
           title: 'Feed',
           tabBarIcon: ({ size, color, focused }) => (
-            <AnimatedTabIcon icon={Rss} size={size} color={color} focused={focused} />
+            <AnimatedTabIcon icon={Rss} size={size} color={focused ? '#60a5fa' : color} focused={focused} />
           ),
+          tabBarActiveTintColor: '#60a5fa',
         }}
       />
       <Tabs.Screen name="settings" options={{ href: null }} />
