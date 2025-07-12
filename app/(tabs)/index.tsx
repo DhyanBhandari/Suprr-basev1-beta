@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Audio } from 'expo-av';
-import { Home, Heart, User, Rss, Menu, Settings, Gift, Users, Mic, Send } from 'lucide-react-native';
+import { Chrome as Home, Heart, User, Rss, Menu, Settings, Gift, Users, Mic, Send } from 'lucide-react-native';
 import { useTheme } from '../../context/ThemeContext';
 
 const { width, height } = Dimensions.get('window');
