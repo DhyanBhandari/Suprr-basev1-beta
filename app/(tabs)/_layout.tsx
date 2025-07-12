@@ -69,7 +69,10 @@ export default function TabLayout() {
               toValue: 1.1,
               duration: 750,
               useNativeDriver: true,
-            }),
+            })
+          ])
+        ).start();
+      }
     }, [focused]);
 
     return (
