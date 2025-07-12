@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Audio } from 'expo-av';
-import { Chrome as Home, Heart, User, Rss, Menu, Settings, Gift, Users, Mic, Send } from 'lucide-react-native';
+import { Globe, Heart, User, Rss, Menu, Settings, Gift, Users, Mic, Send } from 'lucide-react-native';
 import { useTheme } from '../../context/ThemeContext';
 
 const { width, height } = Dimensions.get('window');
@@ -37,6 +37,7 @@ export default function HomeScreen() {
   const waveformAnimations = useRef(Array.from({ length: 7 }, () => new Animated.Value(0.3))).current;
   const chatInputAnimation = useRef(new Animated.Value(0)).current;
   const menuAnimation = useRef(new Animated.Value(0)).current;
+  const chatInputHeightAnimation = useRef(new Animated.Value(44)).current;
 
   useEffect(() => {
     if (isRecording) {
@@ -49,6 +50,12 @@ export default function HomeScreen() {
   useEffect(() => {
     Animated.timing(chatInputAnimation, {
       toValue: isChatFocused ? 1 : 0,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
+    
+    Animated.timing(chatInputHeightAnimation, {
+      toValue: isChatFocused ? 60 : 44,
       duration: 300,
       useNativeDriver: false,
     }).start();
@@ -279,6 +286,15 @@ export default function HomeScreen() {
       >
         {/* Main Content */}
         <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
+          {/* Business Mode Indicator */}
+          {userMode === 'Business' && (
+            <View style={styles.businessModeIndicator}>
+              <Text style={[styles.businessModeText, { color: theme.colors.textSecondary }]}>
+                Business Mode
+              </Text>
+            </View>
+          )}
+
           {/* Voice Recording Section */}
           <View style={[
             styles.voiceSection,
@@ -400,31 +416,37 @@ export default function HomeScreen() {
           )}
           
           <View style={styles.chatInputWrapper}>
-            <TextInput
-              style={[
-                styles.chatInput,
-                {
-                  backgroundColor: isChatFocused 
-                    ? (theme.name === 'liquidGlass' ? 'rgba(255, 255, 255, 0.12)' : theme.colors.card)
-                    : (theme.name === 'liquidGlass' ? 'rgba(255, 255, 255, 0.08)' : theme.colors.surface),
-                  color: theme.colors.text,
-                  borderColor: 'transparent',
-                  shadowColor: isChatFocused ? theme.colors.primary : 'transparent',
-                  shadowOffset: { width: 0, height: 0 },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 8,
-                }
-              ]}
-              placeholder="Type your message..."
-              placeholderTextColor={theme.colors.textSecondary}
-              value={chatText}
-              onChangeText={setChatText}
-              onFocus={() => setIsChatFocused(true)}
-              onBlur={() => setIsChatFocused(false)}
-              multiline
-              returnKeyType="send"
-              onSubmitEditing={handleChatSubmit}
-            />
+            <Animated.View style={[
+              styles.chatInputAnimatedContainer,
+              {
+                height: chatInputHeightAnimation,
+                backgroundColor: isChatFocused 
+                  ? (theme.blur ? 'rgba(255, 255, 255, 0.12)' : theme.colors.card)
+                  : (theme.blur ? 'rgba(255, 255, 255, 0.08)' : theme.colors.surface),
+                borderColor: 'transparent',
+                shadowColor: isChatFocused ? theme.colors.primary : 'transparent',
+                shadowOffset: { width: 0, height: 0 },
+                shadowOpacity: 0.3,
+                shadowRadius: 8,
+                paddingVertical: isChatFocused ? 12 : 8,
+              }
+            ]}>
+              <TextInput
+                style={[
+                  styles.chatInput,
+                  { color: theme.colors.text }
+                ]}
+                placeholder="Type your message..."
+                placeholderTextColor={theme.colors.textSecondary}
+                value={chatText}
+                onChangeText={setChatText}
+                onFocus={() => setIsChatFocused(true)}
+                onBlur={() => setIsChatFocused(false)}
+                multiline
+                returnKeyType="send"
+                onSubmitEditing={handleChatSubmit}
+              />
+            </Animated.View>
             {chatText.trim() && (
               <TouchableOpacity
                 onPress={handleChatSubmit}
