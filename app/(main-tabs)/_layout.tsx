@@ -1,7 +1,7 @@
 /**
  * @file _layout.tsx
- * @description Main tabs layout component that defines the bottom tab navigation structure
- * @features - Tab navigation with custom icons, blur effects, floating tab bar design
+ * @description Main tab navigation layout component that wraps all bottom tab screens
+ * @features - Tab bar configuration, blur effects, custom styling, icon management
  * @developer Dhyan Bhandari
  */
 
@@ -105,5 +105,3 @@ export default function TabLayout() {
     </Tabs>
   );
 }
-
-const styles = StyleSheet.create({});
