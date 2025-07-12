@@ -34,7 +34,6 @@ export default function TabLayout() {
     const rotationAnim = useRef(new Animated.Value(0)).current;
     const heartbeatAnim = useRef(new Animated.Value(1)).current;
     const flickerAnim = useRef(new Animated.Value(1)).current;
-    const profileGlowAnim = useRef(new Animated.Value(1)).current;
 
     useEffect(() => {
       Animated.parallel([
@@ -71,99 +70,8 @@ export default function TabLayout() {
               duration: 750,
               useNativeDriver: true,
             }),
-            Animated.timing(heartbeatAnim, {
-              toValue: 1,
-              duration: 750,
-              useNativeDriver: true,
-            }),
-          ])
-        ).start();
-      }
-      
-      // Profile glow animation
-      if (Icon === User) {
-        Animated.loop(
-          Animated.sequence([
-            Animated.timing(profileGlowAnim, {
-              toValue: 1,
-              duration: 2000,
-              useNativeDriver: true,
-            }),
-            Animated.timing(profileGlowAnim, {
-              toValue: 0.5,
-              duration: 2000,
-              useNativeDriver: true,
-            }),
-          ])
-        ).start();
-      }
-      
-      // Feed flicker animation
-      if (Icon === Rss) {
-        Animated.loop(
-          Animated.sequence([
-            Animated.timing(flickerAnim, {
-              toValue: 0.6,
-              duration: 1000,
-              useNativeDriver: true,
-            }),
-            Animated.timing(flickerAnim, {
-              toValue: 1,
-              duration: 1000,
-              useNativeDriver: true,
-            }),
-          ])
-        ).start();
-      }
     }, [focused]);
 
-    const getAnimatedStyle = () => {
-      const baseStyle = { transform: [{ scale: scaleAnim }] };
-      
-      if (Icon === Globe) {
-        return {
-          ...baseStyle,
-          transform: [
-            { scale: scaleAnim },
-            {
-              rotate: rotationAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: ['0deg', '360deg'],
-              }),
-            },
-          ],
-        };
-      }
-      
-      if (Icon === Heart) {
-        return {
-          ...baseStyle,
-          transform: [
-            { scale: Animated.multiply(scaleAnim, heartbeatAnim) },
-          ],
-        };
-      }
-      
-      if (Icon === User) {
-        return {
-          ...baseStyle,
-          shadowColor: '#ffffff',
-          shadowOffset: { width: 0, height: 0 },
-          shadowOpacity: profileGlowAnim,
-          shadowRadius: 8,
-          elevation: 8,
-        };
-      }
-      
-      if (Icon === Rss) {
-        return {
-          ...baseStyle,
-          opacity: flickerAnim,
-        };
-      }
-      
-      return baseStyle;
-    };
     return (
       <View style={styles.iconContainer}>
         <Animated.View 
@@ -176,7 +84,7 @@ export default function TabLayout() {
             }
           ]}
         />
-        <Animated.View style={getAnimatedStyle()}>
+        <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
           <Icon size={focused ? size + 2 : size} color={color} />
         </Animated.View>
       </View>
@@ -222,7 +130,7 @@ export default function TabLayout() {
         options={{
           title: 'Home',
           tabBarIcon: ({ size, color, focused }) => (
-            <AnimatedTabIcon icon={Globe} size={size} color={focused ? '#14b8a6' : color} focused={focused} />
+            <AnimatedTabIcon icon={Home} size={size} color={focused ? '#14b8a6' : color} focused={focused} />
           ),
           tabBarActiveTintColor: '#14b8a6',
         }}
