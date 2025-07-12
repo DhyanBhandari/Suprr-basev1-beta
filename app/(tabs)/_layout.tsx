@@ -34,6 +34,18 @@ export default function TabLayout() {
     const rotationAnim = useRef(new Animated.Value(0)).current;
     const heartbeatAnim = useRef(new Animated.Value(1)).current;
     const flickerAnim = useRef(new Animated.Value(1)).current;
+    const rotationAnim = useRef(new Animated.Value(0)).current;
+    const heartbeatAnim = useRef(new Animated.Value(1)).current;
+    const flickerAnim = useRef(new Animated.Value(1)).current;
+    const rotationAnim = useRef(new Animated.Value(0)).current;
+    const heartbeatAnim = useRef(new Animated.Value(1)).current;
+    const flickerAnim = useRef(new Animated.Value(1)).current;
+    const rotationAnim = useRef(new Animated.Value(0)).current;
+    const heartbeatAnim = useRef(new Animated.Value(1)).current;
+    const flickerAnim = useRef(new Animated.Value(1)).current;
+    const rotationAnim = useRef(new Animated.Value(0)).current;
+    const heartbeatAnim = useRef(new Animated.Value(1)).current;
+    const flickerAnim = useRef(new Animated.Value(1)).current;
 
     useEffect(() => {
       Animated.parallel([
@@ -69,31 +81,34 @@ export default function TabLayout() {
               toValue: 1.1,
               duration: 750,
               useNativeDriver: true,
-            })
-          ])
+            }),
+      
+      // Globe rotation animation for Home
+      if (Icon === Globe) {
+        Animated.loop(
+          Animated.timing(rotationAnim, {
+            toValue: 1,
+            duration: 8000,
+            useNativeDriver: true,
+          })
         ).start();
       }
-    }, [focused]);
-
-    return (
-      <View style={styles.iconContainer}>
-        <Animated.View 
-          style={[
-            styles.iconGlow,
-            {
-              backgroundColor: theme.colors.primary + '20',
-              opacity: glowAnim,
-              transform: [{ scale: scaleAnim }],
-            }
-          ]}
-        />
-        <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
-          <Icon size={focused ? size + 2 : size} color={color} />
-        </Animated.View>
-      </View>
-    );
-  };
-
+      
+      // Heartbeat animation for Heart
+      if (Icon === Heart) {
+        Animated.loop(
+          Animated.sequence([
+            Animated.timing(heartbeatAnim, {
+              toValue: 1.1,
+              duration: 750,
+              useNativeDriver: true,
+            }),
+      
+      // Globe rotation animation for Home
+      if (Icon === Globe) {
+        Animated.loop(
+          Animated.timing(rotationAnim, {
+            toValue: 1,
   return (
     <Tabs
       screenOptions={{
@@ -132,9 +147,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ size, color, focused }) => (
-            <AnimatedTabIcon icon={Home} size={size} color={focused ? '#14b8a6' : color} focused={focused} />
-          ),
+          tabBarIcon: ({ size, color }) => <Home size={size} color={color} />,
           tabBarActiveTintColor: '#14b8a6',
         }}
       />
@@ -142,9 +155,7 @@ export default function TabLayout() {
         name="favorites"
         options={{
           title: 'Favorites',
-          tabBarIcon: ({ size, color, focused }) => (
-            <AnimatedTabIcon icon={Heart} size={size} color={focused ? '#ef4444' : color} focused={focused} />
-          ),
+          tabBarIcon: ({ size, color }) => <Heart size={size} color={color} />,
           tabBarActiveTintColor: '#ef4444',
         }}
       />
@@ -152,9 +163,7 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ size, color, focused }) => (
-            <AnimatedTabIcon icon={User} size={size} color={focused ? '#8b5cf6' : color} focused={focused} />
-          ),
+          tabBarIcon: ({ size, color }) => <User size={size} color={color} />,
           tabBarActiveTintColor: '#8b5cf6',
         }}
       />
@@ -162,9 +171,7 @@ export default function TabLayout() {
         name="feed"
         options={{
           title: 'Feed',
-          tabBarIcon: ({ size, color, focused }) => (
-            <AnimatedTabIcon icon={Rss} size={size} color={focused ? '#60a5fa' : color} focused={focused} />
-          ),
+          tabBarIcon: ({ size, color }) => <Rss size={size} color={color} />,
           tabBarActiveTintColor: '#60a5fa',
         }}
       />
@@ -174,18 +181,4 @@ export default function TabLayout() {
   );
 }
 
-const styles = StyleSheet.create({
-  iconContainer: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'relative',
-  },
-  iconGlow: {
-    position: 'absolute',
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-  },
-});
+const styles = StyleSheet.create({});
