@@ -1,5 +1,5 @@
 /**
- * @file _layout.tsx
+ * @file RootLayout.tsx
  * @description Root application layout with global providers and animated background
  * @features - Theme provider, framework initialization, animated background, navigation setup
  * @developer Dhyan Bhandari

@@ -1,5 +1,5 @@
 /**
- * @file _layout.tsx
+ * @file MainTabsLayout.tsx
  * @description Main tab navigation layout component that wraps all bottom tab screens
  * @features - Tab bar configuration, blur effects, custom styling, icon management
  * @developer Dhyan Bhandari
@@ -11,7 +11,7 @@ import { Chrome as Home, User, Heart, Rss } from 'lucide-react-native';
 import { View, StyleSheet } from 'react-native';
 import { BlurView } from 'expo-blur';
 
-export default function TabLayout() {
+export default function MainTabsLayout() {
   const { theme, currentTheme } = useTheme();
 
   const TabBarBackground = () => {
@@ -69,7 +69,7 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="HomeScreen"
         options={{
           title: 'Home',
           tabBarIcon: ({ size, color }) => <Home size={size} color={color} />,
@@ -77,7 +77,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="favorites"
+        name="FavoritesScreen"
         options={{
           title: 'Favorites',
           tabBarIcon: ({ size, color }) => <Heart size={size} color={color} />,
@@ -85,7 +85,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="profile"
+        name="ProfileScreen"
         options={{
           title: 'Profile',
           tabBarIcon: ({ size, color }) => <User size={size} color={color} />,
@@ -93,15 +93,15 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="feed"
+        name="FeedScreen"
         options={{
           title: 'Feed',
           tabBarIcon: ({ size, color }) => <Rss size={size} color={color} />,
           tabBarActiveTintColor: '#60a5fa',
         }}
       />
-      <Tabs.Screen name="settings" options={{ href: null }} />
-      <Tabs.Screen name="invite" options={{ href: null }} />
+      <Tabs.Screen name="SettingsScreen" options={{ href: null }} />
+      <Tabs.Screen name="InviteScreen" options={{ href: null }} />
     </Tabs>
   );
 }
