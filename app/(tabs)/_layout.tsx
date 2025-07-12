@@ -82,6 +82,10 @@ export default function TabLayout() {
               duration: 750,
               useNativeDriver: true,
             }),
+          ]
+          )
+        )
+      }
       
       // Globe rotation animation for Home
       if (Icon === Globe) {
@@ -103,12 +107,23 @@ export default function TabLayout() {
               duration: 750,
               useNativeDriver: true,
             }),
+          ]
+          )
+        )
+      }
       
       // Globe rotation animation for Home
       if (Icon === Globe) {
         Animated.loop(
           Animated.timing(rotationAnim, {
             toValue: 1,
+          }
+          )
+        )
+      }
+    }
+    )
+  }
   return (
     <Tabs
       screenOptions={{
