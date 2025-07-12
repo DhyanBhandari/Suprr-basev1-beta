@@ -1,3 +1,10 @@
+/**
+ * @file index.tsx
+ * @description Main home screen for the PLINK app. Displays welcome content, user mode toggle, and chat interface.
+ * @features - User/Business mode switching, animated logo, chat input, hamburger menu navigation
+ * @developer Dhyan Bhandari
+ */
+
 import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
