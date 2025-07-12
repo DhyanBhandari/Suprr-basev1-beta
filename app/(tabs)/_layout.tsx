@@ -34,6 +34,7 @@ export default function TabLayout() {
     const rotationAnim = useRef(new Animated.Value(0)).current;
     const heartbeatAnim = useRef(new Animated.Value(1)).current;
     const flickerAnim = useRef(new Animated.Value(1)).current;
+    const profileGlowAnim = useRef(new Animated.Value(1)).current;
 
     useEffect(() => {
       Animated.parallel([
@@ -68,8 +69,6 @@ export default function TabLayout() {
             Animated.timing(heartbeatAnim, {
               toValue: 1.1,
               duration: 750,
-              useNativeDriver: true,
-            }),
               useNativeDriver: true,
             }),
             Animated.timing(heartbeatAnim, {
