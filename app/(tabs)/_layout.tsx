@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import { useTheme } from '@/context/ThemeContext';
-import { Home, User, Heart, Rss } from 'lucide-react-native';
+import { Chrome as Home, User, Heart, Rss } from 'lucide-react-native';
 import { View, StyleSheet, Animated } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { useRef, useEffect } from 'react';
