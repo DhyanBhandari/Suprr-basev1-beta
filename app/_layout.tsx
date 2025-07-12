@@ -1,1 +1,2 @@
-import { useFrameworkReady } from '@/hooks/useFrameworkReady'export { default } from './RootLayout';
+import { useFrameworkReady } from '@/hooks/useFrameworkReady';
+export { default } from './RootLayout';
