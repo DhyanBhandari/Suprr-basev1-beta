@@ -34,12 +34,6 @@ export default function TabLayout() {
     const rotationAnim = useRef(new Animated.Value(0)).current;
     const heartbeatAnim = useRef(new Animated.Value(1)).current;
     const flickerAnim = useRef(new Animated.Value(1)).current;
-    const rotationAnim = useRef(new Animated.Value(0)).current;
-    const heartbeatAnim = useRef(new Animated.Value(1)).current;
-    const flickerAnim = useRef(new Animated.Value(1)).current;
-    const rotationAnim = useRef(new Animated.Value(0)).current;
-    const heartbeatAnim = useRef(new Animated.Value(1)).current;
-    const flickerAnim = useRef(new Animated.Value(1)).current;
 
     useEffect(() => {
       Animated.parallel([
@@ -75,49 +69,10 @@ export default function TabLayout() {
               toValue: 1.1,
               duration: 750,
               useNativeDriver: true,
-            }),
-      
-      // Globe rotation animation for Home
-      if (Icon === Globe) {
-        Animated.loop(
-          Animated.timing(rotationAnim, {
-            toValue: 1,
-            duration: 8000,
-            useNativeDriver: true,
-          })
+            })
+          ])
         ).start();
       }
-      
-      // Heartbeat animation for Heart
-      if (Icon === Heart) {
-        Animated.loop(
-          Animated.sequence([
-            Animated.timing(heartbeatAnim, {
-              toValue: 1.1,
-              duration: 750,
-              useNativeDriver: true,
-            }),
-      
-      // Globe rotation animation for Home
-      if (Icon === Globe) {
-        Animated.loop(
-          Animated.timing(rotationAnim, {
-            toValue: 1,
-            duration: 8000,
-            useNativeDriver: true,
-          })
-        ).start();
-      }
-      
-      // Heartbeat animation for Heart
-      if (Icon === Heart) {
-        Animated.loop(
-          Animated.sequence([
-            Animated.timing(heartbeatAnim, {
-              toValue: 1.1,
-              duration: 750,
-              useNativeDriver: true,
-            }),
     }, [focused]);
 
     return (
