@@ -1,9 +1,8 @@
 import { Tabs } from 'expo-router';
 import { useTheme } from '@/context/ThemeContext';
-import { Globe, User, Heart, Rss } from 'lucide-react-native';
-import { View, StyleSheet, Animated } from 'react-native';
+import { Home, User, Heart, Rss } from 'lucide-react-native';
+import { View, StyleSheet } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { useRef, useEffect } from 'react';
 
 export default function TabLayout() {
   const { theme, currentTheme } = useTheme();
@@ -28,102 +27,6 @@ export default function TabLayout() {
     );
   };
 
-  const AnimatedTabIcon = ({ icon: Icon, size, color, focused }: any) => {
-    const scaleAnim = useRef(new Animated.Value(focused ? 1.1 : 1)).current;
-    const glowAnim = useRef(new Animated.Value(focused ? 1 : 0)).current;
-    const rotationAnim = useRef(new Animated.Value(0)).current;
-    const heartbeatAnim = useRef(new Animated.Value(1)).current;
-    const flickerAnim = useRef(new Animated.Value(1)).current;
-    const rotationAnim = useRef(new Animated.Value(0)).current;
-    const heartbeatAnim = useRef(new Animated.Value(1)).current;
-    const flickerAnim = useRef(new Animated.Value(1)).current;
-    const rotationAnim = useRef(new Animated.Value(0)).current;
-    const heartbeatAnim = useRef(new Animated.Value(1)).current;
-    const flickerAnim = useRef(new Animated.Value(1)).current;
-    const rotationAnim = useRef(new Animated.Value(0)).current;
-    const heartbeatAnim = useRef(new Animated.Value(1)).current;
-    const flickerAnim = useRef(new Animated.Value(1)).current;
-    const rotationAnim = useRef(new Animated.Value(0)).current;
-    const heartbeatAnim = useRef(new Animated.Value(1)).current;
-    const flickerAnim = useRef(new Animated.Value(1)).current;
-
-    useEffect(() => {
-      Animated.parallel([
-        Animated.spring(scaleAnim, {
-          toValue: focused ? 1.1 : 1,
-          useNativeDriver: true,
-          tension: 300,
-          friction: 10,
-        }),
-        Animated.timing(glowAnim, {
-          toValue: focused ? 1 : 0,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-      ]).start();
-      
-      // Globe rotation animation for Home
-      if (Icon === Globe) {
-        Animated.loop(
-          Animated.timing(rotationAnim, {
-            toValue: 1,
-            duration: 8000,
-            useNativeDriver: true,
-          })
-        ).start();
-      }
-      
-      // Heartbeat animation for Heart
-      if (Icon === Heart) {
-        Animated.loop(
-          Animated.sequence([
-            Animated.timing(heartbeatAnim, {
-              toValue: 1.1,
-              duration: 750,
-              useNativeDriver: true,
-            }),
-          ]
-          )
-        )
-      }
-      
-      // Globe rotation animation for Home
-      if (Icon === Globe) {
-        Animated.loop(
-          Animated.timing(rotationAnim, {
-            toValue: 1,
-            duration: 8000,
-            useNativeDriver: true,
-          })
-        ).start();
-      }
-      
-      // Heartbeat animation for Heart
-      if (Icon === Heart) {
-        Animated.loop(
-          Animated.sequence([
-            Animated.timing(heartbeatAnim, {
-              toValue: 1.1,
-              duration: 750,
-              useNativeDriver: true,
-            }),
-          ]
-          )
-        )
-      }
-      
-      // Globe rotation animation for Home
-      if (Icon === Globe) {
-        Animated.loop(
-          Animated.timing(rotationAnim, {
-            toValue: 1,
-          }
-          )
-        )
-      }
-    }
-    )
-  }
   return (
     <Tabs
       screenOptions={{
