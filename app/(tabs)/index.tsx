@@ -129,6 +129,25 @@ export default function HomeScreen() {
 
       {/* Main Content */}
       <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
+        {/* Logo Section */}
+        <View style={styles.logoSection}>
+          <View style={[styles.logoContainer, { backgroundColor: theme.colors.primary }]}>
+            <Text style={styles.logoText}>P</Text>
+          </View>
+          <View style={styles.logoRings}>
+            <View style={[styles.ring, styles.ring1, { borderColor: theme.colors.primary + '30' }]} />
+            <View style={[styles.ring, styles.ring2, { borderColor: theme.colors.primary + '20' }]} />
+            <View style={[styles.ring, styles.ring3, { borderColor: theme.colors.primary + '10' }]} />
+          </View>
+        </View>
+
+        {/* Illustration Elements */}
+        <View style={styles.illustrationContainer}>
+          <View style={[styles.floatingElement, styles.element1, { backgroundColor: theme.colors.primary + '20' }]} />
+          <View style={[styles.floatingElement, styles.element2, { backgroundColor: '#10b981' + '20' }]} />
+          <View style={[styles.floatingElement, styles.element3, { backgroundColor: '#f59e0b' + '20' }]} />
+        </View>
+
         <Text style={[styles.welcomeText, { color: theme.colors.text }]}>
           Welcome to PLINK
         </Text>
@@ -348,6 +367,86 @@ const styles = StyleSheet.create({
   subText: {
     fontSize: 16,
     textAlign: 'center',
+    marginBottom: 40,
+  },
+  logoSection: {
+    alignItems: 'center',
+    marginBottom: 40,
+    position: 'relative',
+  },
+  logoContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 8,
+    zIndex: 10,
+  },
+  logoText: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#ffffff',
+  },
+  logoRings: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  ring: {
+    position: 'absolute',
+    borderWidth: 2,
+    borderRadius: 999,
+  },
+  ring1: {
+    width: 100,
+    height: 100,
+  },
+  ring2: {
+    width: 120,
+    height: 120,
+  },
+  ring3: {
+    width: 140,
+    height: 140,
+  },
+  illustrationContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    pointerEvents: 'none',
+  },
+  floatingElement: {
+    position: 'absolute',
+    borderRadius: 999,
+  },
+  element1: {
+    width: 60,
+    height: 60,
+    top: '20%',
+    left: '10%',
+  },
+  element2: {
+    width: 40,
+    height: 40,
+    top: '60%',
+    right: '15%',
+  },
+  element3: {
+    width: 50,
+    height: 50,
+    top: '40%',
+    right: '25%',
   },
   chatContainer: {
     paddingHorizontal: 20,
