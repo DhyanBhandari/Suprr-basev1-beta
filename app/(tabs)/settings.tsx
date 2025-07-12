@@ -32,7 +32,7 @@ import {
 } from 'lucide-react-native';
 import { useTheme } from '@/context/ThemeContext';
 import { router } from 'expo-router';
-import Header from '@/components/navigation/Header';
+import Header from '@/components/Header';
 
 export default function SettingsScreen() {
   const { theme, currentTheme, setCurrentTheme } = useTheme();

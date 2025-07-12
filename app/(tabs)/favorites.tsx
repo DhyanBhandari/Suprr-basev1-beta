@@ -13,7 +13,7 @@ import {
 import { BlurView } from 'expo-blur';
 import { Search, Filter, ChevronDown, Star, Trash2, Heart } from 'lucide-react-native';
 import { useTheme } from '@/context/ThemeContext';
-import Header from '@/components/navigation/Header';
+import Header from '@/components/Header';
 
 interface FavoriteItem {
   id: number;

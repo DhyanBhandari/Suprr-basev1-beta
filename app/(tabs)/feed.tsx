@@ -12,7 +12,7 @@ import {
 import { BlurView } from 'expo-blur';
 import { Heart, MessageCircle, Share2, Bookmark, TrendingUp } from 'lucide-react-native';
 import { useTheme } from '@/context/ThemeContext';
-import Header from '@/components/navigation/Header';
+import Header from '@/components/Header';
 
 interface FeedItem {
   id: number;

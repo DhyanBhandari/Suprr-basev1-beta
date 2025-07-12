@@ -12,7 +12,7 @@ import {
 import { BlurView } from 'expo-blur';
 import { ChevronDown, Plus, X, Star } from 'lucide-react-native';
 import { useTheme } from '@/context/ThemeContext';
-import Header from '@/components/navigation/Header';
+import Header from '@/components/Header';
 
 interface BusinessSection {
   id: string;
