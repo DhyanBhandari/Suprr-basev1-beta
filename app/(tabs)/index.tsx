@@ -129,23 +129,23 @@ export default function HomeScreen() {
 
       {/* Main Content */}
       <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
-        {/* Logo Section */}
+        {/* Logo Section - Made more prominent */}
         <View style={styles.logoSection}>
-          <View style={[styles.logoContainer, { backgroundColor: theme.colors.primary }]}>
-            <Text style={styles.logoText}>P</Text>
-          </View>
           <View style={styles.logoRings}>
             <View style={[styles.ring, styles.ring1, { borderColor: theme.colors.primary + '30' }]} />
             <View style={[styles.ring, styles.ring2, { borderColor: theme.colors.primary + '20' }]} />
             <View style={[styles.ring, styles.ring3, { borderColor: theme.colors.primary + '10' }]} />
           </View>
+          <View style={[styles.logoContainer, { backgroundColor: theme.colors.primary }]}>
+            <Text style={styles.logoText}>P</Text>
+          </View>
         </View>
 
-        {/* Illustration Elements */}
-        <View style={styles.illustrationContainer}>
-          <View style={[styles.floatingElement, styles.element1, { backgroundColor: theme.colors.primary + '20' }]} />
-          <View style={[styles.floatingElement, styles.element2, { backgroundColor: '#10b981' + '20' }]} />
-          <View style={[styles.floatingElement, styles.element3, { backgroundColor: '#f59e0b' + '20' }]} />
+        {/* Floating Illustration Elements */}
+        <View style={styles.floatingElements}>
+          <View style={[styles.floatingElement, styles.element1, { backgroundColor: theme.colors.primary + '30' }]} />
+          <View style={[styles.floatingElement, styles.element2, { backgroundColor: '#10b981' + '30' }]} />
+          <View style={[styles.floatingElement, styles.element3, { backgroundColor: '#f59e0b' + '30' }]} />
         </View>
 
         <Text style={[styles.welcomeText, { color: theme.colors.text }]}>
@@ -371,13 +371,15 @@ const styles = StyleSheet.create({
   },
   logoSection: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: 60,
     position: 'relative',
+    height: 160,
+    justifyContent: 'center',
   },
   logoContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
@@ -388,7 +390,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   logoText: {
-    fontSize: 32,
+    fontSize: 40,
     fontWeight: 'bold',
     color: '#ffffff',
   },
@@ -407,23 +409,23 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   ring1: {
-    width: 100,
-    height: 100,
+    width: 130,
+    height: 130,
   },
   ring2: {
-    width: 120,
-    height: 120,
+    width: 160,
+    height: 160,
   },
   ring3: {
-    width: 140,
-    height: 140,
+    width: 190,
+    height: 190,
   },
-  illustrationContainer: {
+  floatingElements: {
     position: 'absolute',
-    top: 0,
+    top: 100,
     left: 0,
     right: 0,
-    bottom: 0,
+    bottom: 100,
     pointerEvents: 'none',
   },
   floatingElement: {
@@ -431,22 +433,22 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   element1: {
-    width: 60,
-    height: 60,
-    top: '20%',
-    left: '10%',
+    width: 80,
+    height: 80,
+    top: 50,
+    left: 30,
   },
   element2: {
-    width: 40,
-    height: 40,
-    top: '60%',
-    right: '15%',
+    width: 60,
+    height: 60,
+    bottom: 80,
+    right: 40,
   },
   element3: {
-    width: 50,
-    height: 50,
-    top: '40%',
-    right: '25%',
+    width: 70,
+    height: 70,
+    top: 120,
+    right: 60,
   },
   chatContainer: {
     paddingHorizontal: 20,
